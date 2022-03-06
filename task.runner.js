@@ -63,11 +63,13 @@ class TaskRunner {
     async run() {
         let noOfTries = 0;
         let taskSuccessful = false
-      while (this.data.length && !taskSuccessful && noOfTries <= this.MAX_RETRIES) {
+        console.log(this.data.length);
+      while (this.data.length) {
             try {
               await  Promise.all(this.addOrUpsertCustomer(this.data))
                 taskSuccessful = true
                 this.data.splice(0, this.MAX_PARALLELISM)
+                console.log(this.data.length);
             } catch (e) {
                 /*
                 Log error object
