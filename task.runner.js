@@ -53,7 +53,7 @@ class TaskRunner {
     };
 
     errorIsRetryAble(statusCode){
-      return  statusCode === 408 || statusCode === 502 ||  statusCode === 504 ||  statusCode === 503
+      return  [408, 500, 502, 503, 504, 522, 524].includes(statusCode)
     }
 
     errorIsNotRetryAble(statusCode){
@@ -62,8 +62,9 @@ class TaskRunner {
 
     retryTasks(data, time){
         const store = []; 
-         data.forEach(({reason}, i) => {
-            if(this.errorIsNotRetryAble(reason)){
+         data.forEach(({reason, value }, i) => {
+             let  statusCode = value || reason // reason when rejected and value when failure
+            if(this.errorIsNotRetryAble(statusCode)){
                 //  not retryable error
                 console.log(`Error occurred when upserting task for ${this.data[i].email}`)
              }
@@ -102,13 +103,12 @@ class TaskRunner {
       while (this.data.length && noOfTries < 1) {
             try {
              const results =  await  Promise.allSettled(this.addOrUpsertCustomer(this.data));
-             
              const retryAbleTask = this.retryTasks(results)
              
             if(retryAbleTask && retryAbleTask.length){
                await this.retry(retryAbleTask, noOfTries)
             }
-            
+                console.log('::::::::::::::::::::::::::::::::completed batch upsert:::::::::::::::::::::::::::::');
                 this.data.splice(0, this.MAX_PARALLELISM)
             } catch (e) {
                 /*
