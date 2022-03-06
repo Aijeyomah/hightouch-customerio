@@ -5,7 +5,7 @@ class TaskRunner {
 
     constructor(config, data) {
 
-        this.MAX_RETRIES = 3
+        this.MAX_RETRIES = 1
         this.runningTasks = 0
         this.completedTasks = 0
         this.data = data
@@ -56,29 +56,67 @@ class TaskRunner {
       return  statusCode === 408 || statusCode === 502 ||  statusCode === 504 ||  statusCode === 503
     }
 
+    errorIsNotRetryAble(statusCode){
+        return statusCode !== 200 && statusCode !== 201 && !this.errorIsRetryAble(statusCode)
+    }
+
+    retryTasks(data, time){
+        const store = []; 
+         data.forEach(({reason}, i) => {
+            if(this.errorIsNotRetryAble(reason)){
+                //  not retryable error
+                console.log(`Error occurred when upserting task for ${this.data[i].email}`)
+             }
+           else if(this.errorIsRetryAble(reason)){
+                if(time === this.MAX_RETRIES){
+                    // still failed after max retry
+                    console.log(`failed to upsert task for ${this.data[i].email}`)
+                }
+                    store.push(this.data[i])
+            } else{
+            console.log(`successfully to upsert task for ${this.data[i].email}`)
+            }
+                
+            });
+            return store;
+    }
+
+    async retry(data, noOfTries) {
+        if(data.length && noOfTries < 1 ){
+            const results =  await  Promise.allSettled(this.addOrUpsertCustomer(data));
+         
+           const retryAbleTask = this.retryTasks(results, 1 )
+        
+        if(retryAbleTask.length){
+            noOfTries++
+        }
+    }
+    }
+
     /*
     Executes a task, which is a function to be called and the data to pass
     To the function
     */
     async run() {
         let noOfTries = 0;
-        let taskSuccessful = false
-        console.log(this.data.length);
-      while (this.data.length) {
+      while (this.data.length && noOfTries < 1) {
             try {
-              await  Promise.all(this.addOrUpsertCustomer(this.data))
-                taskSuccessful = true
+             const results =  await  Promise.allSettled(this.addOrUpsertCustomer(this.data));
+             
+             const retryAbleTask = this.retryTasks(results)
+             
+            if(retryAbleTask && retryAbleTask.length){
+               await this.retry(retryAbleTask, noOfTries)
+            }
+            
                 this.data.splice(0, this.MAX_PARALLELISM)
-                console.log(this.data.length);
             } catch (e) {
                 /*
                 Log error object
                 Check if customer.io returns a retriable flag e.g maybe if error is due to apiRateLimit
                 */
 
-                if (this.errorIsRetryAble) {
-                    noOfTries++
-                }
+              console.log(e)
             }
         }
 

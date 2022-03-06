@@ -54,15 +54,15 @@ class HandleRequest {
 				const chunks = [];
 				res.on("data", (data) => {
 					chunks.push(data);
-					console.log(data);
 				});
 				res.on("end", () => {
 					let resBody = Buffer.concat(chunks).toString('utf-8');
                     //let result = this.handleJson(resBody, res, reject);
                     if (res.statusCode == 200 || res.statusCode == 201) {
-                        resolve(true);
+                        resolve(res.statusCode);
                       } else {
-                        reject(resBody.error);
+						  
+                        reject(res.statusCode);
                       }
                 
 				});
