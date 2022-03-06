@@ -28,7 +28,7 @@
        "last_name":"Watson",
        "email":"margaret.watson@datadoghq.com",
        "location":"Munich",
-       "hirable":true,
+       "hirable":false,
        "bio":"Something let order she away thing heavy. Everybody exist community type meet candidate detail. Other election current.",
         "dob":"2021-04-19"
     },

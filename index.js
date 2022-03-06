@@ -4,15 +4,6 @@ const { checkIfFileExists } = require('./util');
 
 
 
-const validateFile = (args) => {
-  return  args.forEach((file) => {
-      const statsObj =  checkIfFileExists(file)
-      if(!statsObj.size){
-        throw  new Error('Provide a valid file')
-       }
-    })
-}
-
 (async()=> {
     try {
         const configFile = process.argv[2]; 
