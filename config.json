@@ -1,0 +1,36 @@
+{
+    "api_key": "e3a7ed21a60a2496b3e4",
+    "site_id": "6708e72172a7fc81ae11",
+	"parallelism": 25,
+	"userId": "email",
+	"mappings": [
+        {
+			"from": "id",
+			"to": "id"
+		},
+		{
+			"from": "first_name",
+			"to": "first_name"
+		},
+		{
+			"from": "last_name",
+			"to": "last_name"
+		},
+        {
+			"from": "location",
+			"to": "location"
+		},
+        {
+			"from": "dob",
+			"to": "date_of_birth"
+		},
+        {
+			"from": "hirable",
+			"to": "hirable"
+		},
+        {
+            "from": "bio",
+			"to": "user_bio"
+        }
+	]
+}
